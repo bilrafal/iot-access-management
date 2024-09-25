@@ -1,8 +1,9 @@
-package app
+package router
 
 import (
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -21,15 +22,15 @@ func (hm HttpMethod) Validate() error {
 }
 
 type RouteDef struct {
-	httpMethod HttpMethod
-	pattern    string
+	HttpMethod HttpMethod
+	Pattern    string
 	Handler    func(http.ResponseWriter, *http.Request)
 }
 
 func NewRouteDef(method HttpMethod, pattern string, handler func(http.ResponseWriter, *http.Request)) RouteDef {
 	return RouteDef{
-		httpMethod: method,
-		pattern:    pattern,
+		HttpMethod: method,
+		Pattern:    pattern,
 		Handler:    handler,
 	}
 
@@ -42,8 +43,8 @@ func LoadGroupOfRoutes(routeDefs []RouteDef) *chi.Mux {
 	router.Use(middleware.Recoverer)
 
 	for _, def := range routeDefs {
-		pattern := fmt.Sprintf("/%s", def.pattern)
-		switch def.httpMethod {
+		pattern := fmt.Sprintf("/%s", def.Pattern)
+		switch def.HttpMethod {
 		case http.MethodGet:
 			router.Get(pattern, def.Handler)
 		case http.MethodPost:
@@ -57,5 +58,7 @@ func LoadGroupOfRoutes(routeDefs []RouteDef) *chi.Mux {
 		}
 	}
 
+	log.Printf("routes: %+v", routeDefs)
+	log.Printf("router: %+v", router)
 	return router
 }

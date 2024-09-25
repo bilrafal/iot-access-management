@@ -7,7 +7,7 @@ import (
 
 func CoreUserToApiUser(coreUser core.User) api.UserResponse {
 	return api.UserResponse{
-		Id:   api.UserId(coreUser.Id),
+		Id:   string(coreUser.Id),
 		Name: coreUser.Name,
 	}
 }

@@ -6,8 +6,6 @@ import (
 )
 
 func CoreUserToRepoUser(user core.User) repo.User {
-	return repo.User{
-		Id:   string(user.Id),
-		Name: user.Name,
-	}
+	return *repo.NewUser(string(user.Id), user.Name)
+	
 }

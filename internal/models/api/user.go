@@ -1,9 +1,7 @@
 package api
 
-type UserId string
-
 type UserResponse struct {
-	Id   UserId `json:"id"`
+	Id   string `json:"id"`
 	Name string `json:"name"`
 }
 

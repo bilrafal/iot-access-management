@@ -1,8 +1,14 @@
 package core
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+	"iot-access-management/internal/util"
+)
 
 type CredentialId string
+
+const VoidCredentialId CredentialId = util.VoidString
+
 type CredentialVal string
 
 type Credential struct {
@@ -12,5 +18,5 @@ type Credential struct {
 
 func NewCredential(credential string) *Credential {
 	id := uuid.New().String()
-	return &Credential{Id: CredentialId(id),Credential: CredentialVal(credential)}
+	return &Credential{Id: CredentialId(id), Credential: CredentialVal(credential)}
 }

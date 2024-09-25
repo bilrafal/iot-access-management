@@ -14,6 +14,11 @@ const (
 
 	UserIdFieldName   FieldName = "Id"
 	UserNameFieldName FieldName = "Name"
+
+	CredentialTableName TableName = "credential"
+
+	CredentialIdFieldName   FieldName = "Id"
+	CredentialCodeFieldName FieldName = "Code"
 )
 
 func (tn TableName) String() string {

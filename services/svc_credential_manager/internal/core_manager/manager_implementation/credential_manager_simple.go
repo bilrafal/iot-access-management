@@ -5,7 +5,6 @@ import (
 	"errors"
 	"iot-access-management/internal/models/core"
 	"iot-access-management/internal/models/core_to_repo"
-	"iot-access-management/internal/models/repo"
 	"iot-access-management/internal/models/repo_to_core"
 	"iot-access-management/internal/repo"
 	"iot-access-management/internal/util"
@@ -44,7 +43,7 @@ func validateUser(user core.User) error {
 }
 
 func (cm CredentialManagerSimple) GetUser(id core.UserId) (*core.User, error) {
-	repoUser, err := cm.repo.GetUser(repo.UserId(id))
+	repoUser, err := cm.repo.GetUser(string(id))
 	if err != nil {
 		return nil, err
 	}
@@ -52,9 +51,28 @@ func (cm CredentialManagerSimple) GetUser(id core.UserId) (*core.User, error) {
 	return &coreUser, nil
 }
 
-func (CredentialManagerSimple) CreateCredential(accessCode string) core.CredentialId {
-	//TODO implement me
-	panic("implement me")
+func (cm CredentialManagerSimple) CreateCredential(accessCode string) (core.CredentialId, error) {
+	err := validateCredential(accessCode)
+	if err != nil {
+		return core.VoidCredentialId, err
+	}
+
+	coreCredential := core.NewCredential(accessCode)
+	repoCredential := core_to_repo.CoreCredentialToRepoCredential(*coreCredential)
+	err = cm.repo.AddCredential(repoCredential)
+	if err != nil {
+		return core.VoidCredentialId, err
+	}
+	return coreCredential.Id, nil
+
+}
+
+func validateCredential(accessCode string) error {
+	//TODO: refactor magic number
+	if len(accessCode) != 8 {
+		return errors.New("accessCode length invalid")
+	}
+	return nil
 }
 
 func (CredentialManagerSimple) AssignCredentialToUser(userId string, credId core.CredentialId) error {

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"iot-access-management/internal/db"
 	db_factory "iot-access-management/internal/db/db_factory"
-	"iot-access-management/internal/models/repo"
+	repo_model "iot-access-management/internal/models/repo"
 	"iot-access-management/internal/repo"
 	"strings"
 )
@@ -27,7 +27,7 @@ func NewRepoCredentialSimple(ctx context.Context, dbType db.DbType) repo.RepoCre
 	}
 }
 
-func (r *RepoCredentialSimple) AddUser(user repo.User) error {
+func (r *RepoCredentialSimple) AddUser(user repo_model.User) error {
 
 	err := r.dbEngine.Save(db.UserTableName, &user)
 	if err != nil {
@@ -36,23 +36,27 @@ func (r *RepoCredentialSimple) AddUser(user repo.User) error {
 	return nil
 }
 
-func (r *RepoCredentialSimple) GetUser(userId repo.UserId) (*repo.User, error) {
+func (r *RepoCredentialSimple) GetUser(userId string) (*repo_model.User, error) {
 	keySet := db.KeySet{
 		db.KeyName(strings.ToLower(string(db.UserIdFieldName))): userId,
 	}
-	var repoUser repo.User
+	var repoUser repo_model.User
 	user, err := r.dbEngine.Get(db.UserTableName, keySet, &repoUser)
 	if err != nil {
 		return nil, err
 	}
 	switch user.(type) {
-	case *repo.User:
-		return user.(*repo.User), nil
+	case *repo_model.User:
+		return user.(*repo_model.User), nil
 	default:
 		return nil, errors.New("unknown data type")
 	}
 
 }
-func (r *RepoCredentialSimple) AddCredential(accessCode string) error {
+func (r *RepoCredentialSimple) AddCredential(credential repo_model.Credential) error {
+	err := r.dbEngine.Save(db.CredentialTableName, &credential)
+	if err != nil {
+		return err
+	}
 	return nil
 }

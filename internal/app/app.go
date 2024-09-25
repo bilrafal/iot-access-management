@@ -4,28 +4,35 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-chi/chi/v5"
-	config2 "iot-access-management/internal/config"
+	"iot-access-management/internal/binder"
+	"iot-access-management/internal/config"
+	"iot-access-management/internal/router"
 	"net/http"
 	"time"
 )
 
 type App struct {
+	ctx    context.Context
+	binder binder.Binder
 	router *chi.Mux
-	config config2.Config
+	config config.Config
 }
 
-func New(configPath string, routeDefs []RouteDef) *App {
-	config := config2.LoadConfig(configPath)
-	router := LoadGroupOfRoutes(routeDefs)
+func New(ctx context.Context, appBinder binder.Binder, routeDefs []router.RouteDef) *App {
+	cfg := appBinder.GetConfig()
+	boundRoutes := appBinder.BindDependencies(ctx, routeDefs)
+	appRouter := router.LoadGroupOfRoutes(boundRoutes)
 	app := &App{
-		config: config,
-		router: router,
+		ctx:    ctx,
+		binder: appBinder,
+		config: cfg,
+		router: appRouter,
 	}
 
 	return app
 }
 
-func (a *App) Start(ctx context.Context) error {
+func (a *App) Start() error {
 	var err error
 
 	server := &http.Server{
@@ -48,7 +55,7 @@ func (a *App) Start(ctx context.Context) error {
 	select {
 	case err = <-ch:
 		return err
-	case <-ctx.Done():
+	case <-a.ctx.Done():
 		timeout, cancel := context.WithTimeout(context.Background(),
 			time.Second*time.Duration(a.config.Server.Timeout))
 		defer cancel()

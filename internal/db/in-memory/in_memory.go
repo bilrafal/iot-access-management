@@ -48,18 +48,10 @@ func (dbEng *InMemoryDb) Get(table db.TableName, keys db.KeySet, respData interf
 }
 
 func (dbEng *InMemoryDb) Save(table db.TableName, data interface{}) error {
-	var err error
-	txn := dbEng.dbEngine.Txn(true)
 
-	switch table {
-	case db.UserTableName:
-		user, ok := data.(*repo.User)
-		if !ok {
-			return errors.New("invalid data type")
-		}
-		err = txn.Insert(db.UserTableName.String(), user)
-		txn.Commit()
-	}
+	txn := dbEng.dbEngine.Txn(true)
+	err := txn.Insert(string(table), data)
+	txn.Commit()
 
 	return err
 }

@@ -18,11 +18,16 @@ func createSchema() *memdb.DBSchema {
 						Unique:  true,
 						Indexer: &memdb.StringFieldIndex{Field: db.UserIdFieldName.String()},
 					},
-					//strings.ToLower(db.UserNameFieldName.String()): {
-					//	Name:    strings.ToLower(db.UserNameFieldName.String()),
-					//	Unique:  false,
-					//	Indexer: &memdb.StringFieldIndex{Field: db.UserNameFieldName.String()},
-					//},
+				},
+			},
+			db.CredentialTableName.String(): &memdb.TableSchema{
+				Name: db.CredentialTableName.String(),
+				Indexes: map[string]*memdb.IndexSchema{
+					strings.ToLower(db.CredentialIdFieldName.String()): &memdb.IndexSchema{
+						Name:    strings.ToLower(db.CredentialIdFieldName.String()),
+						Unique:  true,
+						Indexer: &memdb.StringFieldIndex{Field: db.CredentialIdFieldName.String()},
+					},
 				},
 			},
 		},

@@ -7,7 +7,7 @@ import (
 type CredentialManager interface {
 	CreateUser(user core.User) (*core.User, error)
 	GetUser(id core.UserId) (*core.User, error)
-	//CreateCredential(accessCode string) core.CredentialId
+	CreateCredential(accessCode string) (core.CredentialId, error)
 	//AssignCredentialToUser(userId string, credId core.CredentialId) error
 	//AuthorizeUserOnDoor(credId core.CredentialId) error
 	//RevokeAuthorization(credId core.CredentialId) error

@@ -1,12 +1,11 @@
 package handler
 
 import (
-	"encoding/json"
 	"fmt"
 	"iot-access-management/internal/models/api_to_core"
 	"iot-access-management/internal/models/core_to_api"
 	"iot-access-management/internal/util/http_helper"
-	api_context "iot-access-management/services/svc_credential_manager/internal/api/api_context"
+	"iot-access-management/services/svc_credential_manager/internal/api/api_context"
 	"iot-access-management/services/svc_credential_manager/internal/core_manager"
 	"log/slog"
 	"net/http"
@@ -24,34 +23,42 @@ func NewCredentialHandler(cm core_manager.CredentialManager) *CredentialHandler 
 
 func (ch *CredentialHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
-	userRequest, err := api_context.GetUserCreatePayloadFromBody(w, r)
+	userRequest, err := api_context.GetUserCreatePayloadFromBody(r)
 	if err != nil {
-		w.Write([]byte(fmt.Sprintf("Json not valid, expected Json: [%+v]; error: ", userRequest, err)))
-		w.WriteHeader(http.StatusBadRequest)
+		http_helper.RespondBadRequestWithError(w,
+			fmt.Sprintf("json not valid, expected Json: [%+v]; error: [%v]", userRequest, err))
 		return
 	}
 
 	user := api_to_core.ApiCreateUserToCoreUser(*userRequest)
-
 	newUser, err := ch.credentialsManager.CreateUser(user)
+
 	if err != nil {
-		slog.Error("failed to insert:", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		http_helper.RespondInternalServerErrorWithError(w, fmt.Sprintf("failed to insert: [%v]", err))
 		return
 	}
 
-	res, err := json.Marshal(newUser)
+	http_helper.RespondWithStatusCreatedAndBody(w, newUser)
+}
+
+func (ch *CredentialHandler) CreateCredential(w http.ResponseWriter, r *http.Request) {
+
+	credentialRequest, err := api_context.GetCredentialCreatePayloadFromBody(r)
 	if err != nil {
-		slog.Error("failed to marshal:", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		http_helper.RespondBadRequestWithError(w,
+			fmt.Sprintf("json not valid, expected Json: [%+v]; error: [%v]", credentialRequest, err))
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
-	_, err = w.Write(res)
+	credential := api_to_core.ApiCreateCredentialToCoreCredential(*credentialRequest)
+	newCredential, err := ch.credentialsManager.CreateCredential(string(credential.Credential))
+
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		http_helper.RespondInternalServerErrorWithError(w, fmt.Sprintf("failed to insert: [%v]", err))
+		return
 	}
+
+	http_helper.RespondWithStatusCreatedAndBody(w, newCredential)
 }
 
 func (ch *CredentialHandler) GetUser(w http.ResponseWriter, r *http.Request) {
