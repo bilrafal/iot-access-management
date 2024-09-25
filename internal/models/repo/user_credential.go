@@ -1,10 +1,10 @@
 package repo
 
 type UserCredential struct {
-	UserId       string
+	Id           string //userId
 	CredentialId string
 }
 
 func NewUserCredential(userId string, credentialId string) *UserCredential {
-	return &UserCredential{UserId: userId, CredentialId: credentialId}
+	return &UserCredential{Id: userId, CredentialId: credentialId}
 }

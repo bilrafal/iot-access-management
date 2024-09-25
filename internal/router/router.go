@@ -3,7 +3,6 @@ package router
 import (
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -58,7 +57,5 @@ func LoadGroupOfRoutes(routeDefs []RouteDef) *chi.Mux {
 		}
 	}
 
-	log.Printf("routes: %+v", routeDefs)
-	log.Printf("router: %+v", router)
 	return router
 }

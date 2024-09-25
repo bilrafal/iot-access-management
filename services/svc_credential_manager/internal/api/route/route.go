@@ -12,6 +12,8 @@ func RoutesDef() (routeDefs []router.RouteDef) {
 	routeDefs = append(routeDefs, router.NewRouteDef(http.MethodPost, "user", hdl.CreateUser))
 	routeDefs = append(routeDefs, router.NewRouteDef(http.MethodGet, "user/{id}", hdl.GetUser))
 	routeDefs = append(routeDefs, router.NewRouteDef(http.MethodPost, "credential", hdl.CreateCredential))
+	routeDefs = append(routeDefs, router.NewRouteDef(http.MethodPost, "user-credential", hdl.AssignCredentialToUser))
+	routeDefs = append(routeDefs, router.NewRouteDef(http.MethodGet, "user-credential/{id}", hdl.GetUserCredentials))
 
 	return
 }

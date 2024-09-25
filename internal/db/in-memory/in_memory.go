@@ -22,7 +22,7 @@ func NewInMemoryDb() *InMemoryDb {
 	return &InMemoryDb{dbEngine: dbEngine}
 }
 
-func (dbEng *InMemoryDb) Get(table db.TableName, keys db.KeySet, respData interface{}) (interface{}, error) {
+func (dbEng *InMemoryDb) Get(table db.TableName, keys db.KeySet) (interface{}, error) {
 	var err error
 	var data interface{}
 	txn := dbEng.dbEngine.Txn(false)
@@ -30,17 +30,44 @@ func (dbEng *InMemoryDb) Get(table db.TableName, keys db.KeySet, respData interf
 
 	switch table {
 	case db.UserTableName:
-		id, ok := keys[db.KeyName("id")]
+		id, ok := keys[db.KeyName(strings.ToLower(db.UserIdFieldName.String()))]
 		if !ok {
 			return nil, errors.New("invalid keys")
 		}
 
 		data, err = txn.First(db.UserTableName.String(), strings.ToLower(db.UserIdFieldName.String()), fmt.Sprintf("%s", id))
+		if err != nil {
+			return nil, db.ErrDbNotFound
+		}
+	case db.CredentialTableName:
+		id, ok := keys[db.KeyName(strings.ToLower(db.CredentialIdFieldName.String()))]
+		if !ok {
+			return nil, errors.New("invalid keys")
+		}
+
+		data, err = txn.First(db.CredentialTableName.String(), strings.ToLower(db.CredentialIdFieldName.String()), fmt.Sprintf("%s", id))
+		if err != nil {
+			return nil, db.ErrDbNotFound
+		}
+	case db.UserCredentialRelTableName:
+		userId, ok := keys[db.KeyName(strings.ToLower(db.UserIdFieldName.String()))]
+		if !ok {
+			return nil, errors.New("invalid keys")
+		}
+
+		dataList, err := txn.Get(db.UserCredentialRelTableName.String(), strings.ToLower(db.UserIdFieldName.String()), fmt.Sprintf("%s", userId))
+		if err != nil {
+			return nil, db.ErrDbNotFound
+		}
+		var userCredentials []*repo.UserCredential
+		for obj := dataList.Next(); obj != nil; obj = dataList.Next() {
+			uc := obj.(*repo.UserCredential)
+			userCredentials = append(userCredentials, uc)
+		}
+
+		return userCredentials, nil
 	default:
 		return nil, errors.New("unknown table")
-	}
-	if err != nil {
-		return nil, err
 	}
 
 	return data, nil

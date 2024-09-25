@@ -30,6 +30,37 @@ func createSchema() *memdb.DBSchema {
 					},
 				},
 			},
+			db.UserCredentialRelTableName.String(): &memdb.TableSchema{
+				Name: db.UserCredentialRelTableName.String(),
+				Indexes: map[string]*memdb.IndexSchema{
+					strings.ToLower(db.UserIdFieldName.String()): &memdb.IndexSchema{
+						Name:    strings.ToLower(db.UserIdFieldName.String()),
+						Unique:  true,
+						Indexer: &memdb.StringFieldIndex{Field: db.UserIdFieldName.String()},
+					},
+					strings.ToLower(db.CredentialFkIdFieldName.String()): &memdb.IndexSchema{
+						Name:    strings.ToLower(db.CredentialFkIdFieldName.String()),
+						Unique:  true,
+						Indexer: &memdb.StringFieldIndex{Field: db.CredentialFkIdFieldName.String()},
+					},
+				},
+			},
+
+			db.WhiteListedDoorTableName.String(): &memdb.TableSchema{
+				Name: db.WhiteListedDoorTableName.String(),
+				Indexes: map[string]*memdb.IndexSchema{
+					strings.ToLower(db.UserFkIdFieldName.String()): &memdb.IndexSchema{
+						Name:    strings.ToLower(db.UserFkIdFieldName.String()),
+						Unique:  true,
+						Indexer: &memdb.StringFieldIndex{Field: db.UserFkIdFieldName.String()},
+					},
+					strings.ToLower(db.DoorIdFieldName.String()): &memdb.IndexSchema{
+						Name:    strings.ToLower(db.DoorIdFieldName.String()),
+						Unique:  true,
+						Indexer: &memdb.StringFieldIndex{Field: db.DoorIdFieldName.String()},
+					},
+				},
+			},
 		},
 	}
 }

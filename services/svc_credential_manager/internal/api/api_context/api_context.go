@@ -33,3 +33,12 @@ func GetCredentialCreatePayloadFromBody(r *http.Request) (*api.CredentialCreateR
 
 	return &userRequest, nil
 }
+
+func GetAssignCredentialToUserPayloadFromBody(r *http.Request) (*api.AssignCredentialToUserRequest, error) {
+	var assignCredRequest api.AssignCredentialToUserRequest
+	if err := json.NewDecoder(r.Body).Decode(&assignCredRequest); err != nil {
+		return nil, err
+	}
+
+	return &assignCredRequest, nil
+}

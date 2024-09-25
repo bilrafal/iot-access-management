@@ -5,6 +5,7 @@ import (
 	"errors"
 	"iot-access-management/internal/models/core"
 	"iot-access-management/internal/models/core_to_repo"
+	repo_model "iot-access-management/internal/models/repo"
 	"iot-access-management/internal/models/repo_to_core"
 	"iot-access-management/internal/repo"
 	"iot-access-management/internal/util"
@@ -36,6 +37,7 @@ func (cm CredentialManagerSimple) CreateUser(user core.User) (*core.User, error)
 }
 
 func validateUser(user core.User) error {
+	//TODO: possibly check if there is no user with the same name
 	if util.IsVoidString(user.Name) {
 		return errors.New("username is empty")
 	}
@@ -75,9 +77,48 @@ func validateCredential(accessCode string) error {
 	return nil
 }
 
-func (CredentialManagerSimple) AssignCredentialToUser(userId string, credId core.CredentialId) error {
-	//TODO implement me
-	panic("implement me")
+func (cm CredentialManagerSimple) GetCredential(id core.CredentialId) (*core.Credential, error) {
+	repoCredential, err := cm.repo.GetCredential(string(id))
+	if err != nil {
+		return nil, err
+	}
+	coreCredential := repo_to_core.RepoCredentialToCoreCredential(*repoCredential)
+	return &coreCredential, nil
+}
+func (cm CredentialManagerSimple) AssignCredentialToUser(userId core.UserId, credId core.CredentialId) error {
+
+	user, _ := cm.GetUser(userId)
+	if user == nil {
+		return core_manager.ErrUserNotFound.Generate()
+	}
+
+	credential, _ := cm.GetCredential(credId)
+	if credential == nil {
+		return core_manager.ErrCredentialNotFound.Generate()
+	}
+
+	userCredential := repo_model.NewUserCredential(string(userId), string(credId))
+	err := cm.repo.AddUserCredential(*userCredential)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (cm CredentialManagerSimple) GetUserCredentials(userId core.UserId) ([]*core.UserCredential, error) {
+	repoCredentials, err := cm.repo.GetUserCredentials(string(userId))
+	if err != nil {
+		return nil, err
+	}
+
+	var coreCredentials []*core.UserCredential
+	for _, credential := range repoCredentials {
+		coreCredential := repo_to_core.RepoUserCredentialToCoreUserCredential(*credential)
+		coreCredentials = append(coreCredentials, &coreCredential)
+	}
+
+	return coreCredentials, nil
 }
 
 func (CredentialManagerSimple) AuthorizeUserOnDoor(credId core.CredentialId) error {

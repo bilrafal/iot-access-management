@@ -61,6 +61,26 @@ func (ch *CredentialHandler) CreateCredential(w http.ResponseWriter, r *http.Req
 	http_helper.RespondWithStatusCreatedAndBody(w, newCredential)
 }
 
+func (ch *CredentialHandler) AssignCredentialToUser(w http.ResponseWriter, r *http.Request) {
+
+	credentialRequest, err := api_context.GetAssignCredentialToUserPayloadFromBody(r)
+	if err != nil {
+		http_helper.RespondBadRequestWithError(w,
+			fmt.Sprintf("json not valid, expected Json: [%+v]; error: [%v]", credentialRequest, err))
+		return
+	}
+
+	coreCredential := api_to_core.ApiAssignCredentialToUserRequestToCoreUserCredential(*credentialRequest)
+	err = ch.credentialsManager.AssignCredentialToUser(coreCredential.UserId, coreCredential.CredentialId)
+
+	if err != nil {
+		http_helper.RespondInternalServerErrorWithError(w, fmt.Sprintf("failed to insert: [%v]", err))
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+}
+
 func (ch *CredentialHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 
 	userId := api_context.GetUserIdFromUrlParam(r)
@@ -76,4 +96,19 @@ func (ch *CredentialHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 	apiUser := core_to_api.CoreUserToApiUser(*coreUser)
 
 	http_helper.RespondOkWithBody(w, apiUser)
+}
+
+func (ch *CredentialHandler) GetUserCredentials(w http.ResponseWriter, r *http.Request) {
+
+	userId := api_context.GetUserIdFromUrlParam(r)
+
+	//TODO: switch depending if NotFound or InternalError
+	coreUserCredential, err := ch.credentialsManager.GetUserCredentials(userId)
+	if err != nil {
+		slog.Error("failed to get user:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	http_helper.RespondOkWithBody(w, coreUserCredential)
 }

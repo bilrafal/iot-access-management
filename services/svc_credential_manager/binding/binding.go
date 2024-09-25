@@ -16,17 +16,23 @@ import (
 type CredentialManagerBinder struct {
 }
 
+// GetConfig method loads the http server and app config from the yaml file
 func (b *CredentialManagerBinder) GetConfig() config.Config {
 	configPath := filepath.Join(util.GetEffectiveUserHomeFolder(), "services", "svc_credential_manager", "config")
 	return config.LoadConfig(configPath)
 }
+
+// BindDependencies method binds the necessary elements (i.e. repos, http routes) based on the app config
 func (b *CredentialManagerBinder) BindDependencies(ctx context.Context, routesDef []router.RouteDef) []router.RouteDef {
+	//Get app config from file
 	cfg := b.GetConfig()
-	handlers := make([]router.RouteDef, 0)
+
+	//Fill all necessary elements: repo, core functionality manager and handler manager
 	repo := repo_credential_simple.NewRepoCredentialSimple(ctx, db.DbType(cfg.DbDef.DbType))
 	manager := manager_implementation.NewCredentialManagerSimple(repo)
 	handlerManager := handler.NewCredentialHandler(manager)
 
+	handlers := make([]router.RouteDef, 0)
 	for _, def := range routesDef {
 		switch fmt.Sprintf("%p", def.Handler) {
 		case fmt.Sprintf("%p", handlerManager.CreateUser):
@@ -35,6 +41,10 @@ func (b *CredentialManagerBinder) BindDependencies(ctx context.Context, routesDe
 			handlers = append(handlers, router.NewRouteDef(def.HttpMethod, def.Pattern, handlerManager.GetUser))
 		case fmt.Sprintf("%p", handlerManager.CreateCredential):
 			handlers = append(handlers, router.NewRouteDef(def.HttpMethod, def.Pattern, handlerManager.CreateCredential))
+		case fmt.Sprintf("%p", handlerManager.AssignCredentialToUser):
+			handlers = append(handlers, router.NewRouteDef(def.HttpMethod, def.Pattern, handlerManager.AssignCredentialToUser))
+		case fmt.Sprintf("%p", handlerManager.GetUserCredentials):
+			handlers = append(handlers, router.NewRouteDef(def.HttpMethod, def.Pattern, handlerManager.GetUserCredentials))
 		default:
 			panic(fmt.Sprintf("Unsupported route definition type: %p", def.Handler))
 		}

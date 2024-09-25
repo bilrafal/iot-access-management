@@ -20,6 +20,8 @@ type DbDef struct {
 	DbType string `mapstructure:"db-type"`
 }
 
+// LoadConfig function loads app config from yaml fiel
+// If it cannot load the config it panics
 func LoadConfig(configPath string) Config {
 	var cfg Config
 
