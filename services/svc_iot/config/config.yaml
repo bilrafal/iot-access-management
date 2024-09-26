@@ -1,0 +1,12 @@
+server:
+  host: 0.0.0.0
+  port: 4772
+  timeout: 10
+
+db:
+  db-type: "in-memory"
+
+client:
+  host: 0.0.0.0
+  port: 4771
+  timeout: 10

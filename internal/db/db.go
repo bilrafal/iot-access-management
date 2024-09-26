@@ -12,20 +12,20 @@ type TableName string
 type FieldName string
 
 const (
+	IdFieldName             FieldName = "Id"
+	UserFkIdFieldName       FieldName = "UserId"
+	CredentialFkIdFieldName FieldName = "CredentialId"
+
 	UserTableName     TableName = "user"
-	UserIdFieldName   FieldName = "Id"
 	UserNameFieldName FieldName = "Name"
 
 	CredentialTableName     TableName = "credential"
-	CredentialIdFieldName   FieldName = "Id"
 	CredentialCodeFieldName FieldName = "Code"
 
 	UserCredentialRelTableName TableName = "user-credential"
-	UserFkIdFieldName          FieldName = "UserId"
-	CredentialFkIdFieldName    FieldName = "CredentialId"
 
 	WhiteListedDoorTableName TableName = "whitelist"
-	DoorIdFieldName          FieldName = "Id"
+	DoorIdFieldName          FieldName = "DoorId"
 )
 
 var (
@@ -47,8 +47,9 @@ type KeyValue interface{}
 type KeySet map[KeyName]KeyValue
 
 type DbClient interface {
-	Get(table TableName, keys KeySet) (interface{}, error)
-	Save(table TableName, data interface{}) error
-	Delete(table TableName, keys KeySet) error
-	Update(table TableName, keys KeySet, data interface{}) error
+	Get(table TableName, keys KeySet) (interface{}, *trace_error.TraceError)
+	List(table TableName) (interface{}, *trace_error.TraceError)
+	Save(table TableName, data interface{}) *trace_error.TraceError
+	Delete(table TableName, item interface{}) *trace_error.TraceError
+	Update(table TableName, keys KeySet, data interface{}) *trace_error.TraceError
 }

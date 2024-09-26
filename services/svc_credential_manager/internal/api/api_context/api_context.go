@@ -9,11 +9,23 @@ import (
 )
 
 const (
-	UrlUserId = "id"
+	UrlUserId         = "id"
+	UrlDoorId         = "door-id"
+	UrlCredentialId   = "credential-id"
+	UrlCredentialCode = "code"
 )
 
 func GetUserIdFromUrlParam(r *http.Request) core.UserId {
 	return core.UserId(chi.URLParam(r, UrlUserId))
+}
+func GetCredentialIdFromUrlParam(r *http.Request) core.CredentialId {
+	return core.CredentialId(chi.URLParam(r, UrlCredentialId))
+}
+func GetCredentialCodeFromUrlParam(r *http.Request) core.CredentialVal {
+	return core.CredentialVal(chi.URLParam(r, UrlCredentialCode))
+}
+func GetDoorIdFromUrlParam(r *http.Request) core.DoorId {
+	return core.DoorId(chi.URLParam(r, UrlDoorId))
 }
 
 func GetUserCreatePayloadFromBody(r *http.Request) (*api.UserCreateRequest, error) {

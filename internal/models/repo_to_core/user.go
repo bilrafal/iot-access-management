@@ -7,7 +7,7 @@ import (
 
 func RepoUserToCoreUser(user repo.User) core.User {
 	return core.User{
-		Id:   core.UserId(user.Id),
+		Id:   core.UserId(user.UserId),
 		Name: user.Name,
 	}
 }

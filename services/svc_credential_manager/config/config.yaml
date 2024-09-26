@@ -5,3 +5,8 @@ server:
 
 db:
   db-type: "in-memory"
+
+client:
+  host: 0.0.0.0
+  port: 4772
+  timeout: 10

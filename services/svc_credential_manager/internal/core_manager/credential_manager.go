@@ -6,16 +6,18 @@ import (
 )
 
 var (
-	ErrUserNotFound       = trace_error.NewTraceError("USER_NOT_FOUND")
 	ErrCredentialNotFound = trace_error.NewTraceError("CREDENTIAL_NOT_FOUND")
+	ErrUserNotFound       = trace_error.NewTraceError("USER_NOT_FOUND")
+	ErrUnexpected         = trace_error.NewTraceError("ERR_UNEXPECTED")
 )
 
 type CredentialManager interface {
-	CreateUser(user core.User) (*core.User, error)
-	GetUser(id core.UserId) (*core.User, error)
-	CreateCredential(accessCode string) (core.CredentialId, error)
-	AssignCredentialToUser(userId core.UserId, credId core.CredentialId) error
-	GetUserCredentials(userId core.UserId) ([]*core.UserCredential, error)
-	//AuthorizeUserOnDoor(credId core.CredentialId) error
-	//RevokeAuthorization(credId core.CredentialId) error
+	CreateUser(user core.User) (*core.User, *trace_error.TraceError)
+	GetUser(id core.UserId) (*core.User, *trace_error.TraceError)
+	CreateCredential(accessCode string) (core.CredentialId, *trace_error.TraceError)
+	AssignCredentialToUser(userId core.UserId, credId core.CredentialId) *trace_error.TraceError
+	GetUserCredentials(userId core.UserId) ([]*core.UserCredential, *trace_error.TraceError)
+	AuthorizeUserOnDoor(doorId core.DoorId, credId core.CredentialId) *trace_error.TraceError
+	RevokeAuthorization(doorId core.DoorId, credId core.CredentialId) *trace_error.TraceError
+	GetCredentialIdByCode(credentialCode core.CredentialVal) (*core.Credential, *trace_error.TraceError)
 }

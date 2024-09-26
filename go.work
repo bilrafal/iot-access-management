@@ -1,0 +1,22 @@
+go 1.22.3
+
+use (
+	./services/svc_credential_manager
+	./services/svc_iot
+	./internal/client
+	./internal/app
+	./internal/binder
+	./internal/config
+	./internal/router
+	./internal/db
+	./internal/error/trace_error
+	./internal/repo/repo_iot_simple
+	./internal/models/repo
+	./internal/repo
+	./internal/util
+	./internal/models/api_to_core
+	./internal/models/api
+	./internal/models/core
+	./internal/models/core_to_repo
+	./internal/models/repo_to_core
+	)

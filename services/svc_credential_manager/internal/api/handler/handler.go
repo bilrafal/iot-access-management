@@ -31,10 +31,10 @@ func (ch *CredentialHandler) CreateUser(w http.ResponseWriter, r *http.Request) 
 	}
 
 	user := api_to_core.ApiCreateUserToCoreUser(*userRequest)
-	newUser, err := ch.credentialsManager.CreateUser(user)
+	newUser, createUserErr := ch.credentialsManager.CreateUser(user)
 
-	if err != nil {
-		http_helper.RespondInternalServerErrorWithError(w, fmt.Sprintf("failed to insert: [%v]", err))
+	if createUserErr != nil {
+		http_helper.RespondInternalServerErrorWithError(w, fmt.Sprintf("failed to insert: [%v]", createUserErr))
 		return
 	}
 
@@ -51,14 +51,34 @@ func (ch *CredentialHandler) CreateCredential(w http.ResponseWriter, r *http.Req
 	}
 
 	credential := api_to_core.ApiCreateCredentialToCoreCredential(*credentialRequest)
-	newCredential, err := ch.credentialsManager.CreateCredential(string(credential.Credential))
+	newCredential, createCredentialErr := ch.credentialsManager.CreateCredential(string(credential.Credential))
 
-	if err != nil {
-		http_helper.RespondInternalServerErrorWithError(w, fmt.Sprintf("failed to insert: [%v]", err))
+	if createCredentialErr != nil {
+		http_helper.RespondInternalServerErrorWithError(w, fmt.Sprintf("failed to insert: [%v]", createCredentialErr))
 		return
 	}
 
 	http_helper.RespondWithStatusCreatedAndBody(w, newCredential)
+}
+
+func (ch *CredentialHandler) GetCredential(w http.ResponseWriter, r *http.Request) {
+
+	credentialCode := api_context.GetCredentialCodeFromUrlParam(r)
+	coreCredential, err := ch.credentialsManager.GetCredentialIdByCode(credentialCode)
+
+	if err != nil {
+		switch {
+		case err.Is(core_manager.ErrCredentialNotFound):
+			http_helper.RespondNotFoundWithError(w, fmt.Sprintf("credential not found: [%v]", err))
+			return
+		default:
+			http_helper.RespondInternalServerErrorWithError(w, fmt.Sprintf("failed to insert: [%v]", err))
+			return
+		}
+	}
+
+	apiCredential := core_to_api.CoreCredentialToApiCreateCredentialResponse(*coreCredential)
+	http_helper.RespondOkWithBody(w, apiCredential)
 }
 
 func (ch *CredentialHandler) AssignCredentialToUser(w http.ResponseWriter, r *http.Request) {
@@ -71,10 +91,39 @@ func (ch *CredentialHandler) AssignCredentialToUser(w http.ResponseWriter, r *ht
 	}
 
 	coreCredential := api_to_core.ApiAssignCredentialToUserRequestToCoreUserCredential(*credentialRequest)
-	err = ch.credentialsManager.AssignCredentialToUser(coreCredential.UserId, coreCredential.CredentialId)
+	assignCredErr := ch.credentialsManager.AssignCredentialToUser(coreCredential.UserId, coreCredential.CredentialId)
+
+	if assignCredErr != nil {
+		http_helper.RespondInternalServerErrorWithError(w, fmt.Sprintf("failed to insert: [%v]", assignCredErr))
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+}
+
+func (ch *CredentialHandler) AuthorizeUserOnDoor(w http.ResponseWriter, r *http.Request) {
+
+	doorId := api_context.GetDoorIdFromUrlParam(r)
+	credId := api_context.GetCredentialIdFromUrlParam(r)
+
+	err := ch.credentialsManager.AuthorizeUserOnDoor(doorId, credId)
 
 	if err != nil {
-		http_helper.RespondInternalServerErrorWithError(w, fmt.Sprintf("failed to insert: [%v]", err))
+		http_helper.RespondInternalServerErrorWithError(w, fmt.Sprintf("failed to authorize: [%v]", err))
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+}
+func (ch *CredentialHandler) RevokeAuthorization(w http.ResponseWriter, r *http.Request) {
+
+	doorId := api_context.GetDoorIdFromUrlParam(r)
+	credId := api_context.GetCredentialIdFromUrlParam(r)
+
+	err := ch.credentialsManager.RevokeAuthorization(doorId, credId)
+
+	if err != nil {
+		http_helper.RespondInternalServerErrorWithError(w, fmt.Sprintf("failed to revoke: [%v]", err))
 		return
 	}
 

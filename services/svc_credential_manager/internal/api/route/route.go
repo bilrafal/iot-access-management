@@ -12,8 +12,11 @@ func RoutesDef() (routeDefs []router.RouteDef) {
 	routeDefs = append(routeDefs, router.NewRouteDef(http.MethodPost, "user", hdl.CreateUser))
 	routeDefs = append(routeDefs, router.NewRouteDef(http.MethodGet, "user/{id}", hdl.GetUser))
 	routeDefs = append(routeDefs, router.NewRouteDef(http.MethodPost, "credential", hdl.CreateCredential))
+	routeDefs = append(routeDefs, router.NewRouteDef(http.MethodGet, "credential/{code}", hdl.GetCredential))
 	routeDefs = append(routeDefs, router.NewRouteDef(http.MethodPost, "user-credential", hdl.AssignCredentialToUser))
 	routeDefs = append(routeDefs, router.NewRouteDef(http.MethodGet, "user-credential/{id}", hdl.GetUserCredentials))
+	routeDefs = append(routeDefs, router.NewRouteDef(http.MethodPost, "authorize/{door-id}/{credential-id}", hdl.AuthorizeUserOnDoor))
+	routeDefs = append(routeDefs, router.NewRouteDef(http.MethodDelete, "authorize/{door-id}/{credential-id}", hdl.RevokeAuthorization))
 
 	return
 }

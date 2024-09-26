@@ -6,6 +6,5 @@ import (
 )
 
 func CoreUserCredentialToRepoUserCredential(userCredential core.UserCredential) repo.UserCredential {
-	return *repo.NewUserCredential(string(userCredential.UserId), string(userCredential.CredentialId))
-
+	return *repo.NewUserCredential(userCredential.Id, string(userCredential.UserId), string(userCredential.CredentialId))
 }

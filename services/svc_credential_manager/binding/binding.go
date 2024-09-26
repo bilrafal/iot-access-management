@@ -3,6 +3,7 @@ package binding
 import (
 	"context"
 	"fmt"
+	"iot-access-management/internal/client"
 	"iot-access-management/internal/config"
 	"iot-access-management/internal/db"
 	"iot-access-management/internal/repo/repo_credential_simple"
@@ -29,7 +30,9 @@ func (b *CredentialManagerBinder) BindDependencies(ctx context.Context, routesDe
 
 	//Fill all necessary elements: repo, core functionality manager and handler manager
 	repo := repo_credential_simple.NewRepoCredentialSimple(ctx, db.DbType(cfg.DbDef.DbType))
-	manager := manager_implementation.NewCredentialManagerSimple(repo)
+	c := client.NewClient(cfg.ClientConfig.ClientHost, cfg.ClientConfig.ClientPort, cfg.ClientConfig.Timeout)
+	manager := manager_implementation.NewCredentialManagerSimple(repo, *c)
+
 	handlerManager := handler.NewCredentialHandler(manager)
 
 	handlers := make([]router.RouteDef, 0)
@@ -45,6 +48,12 @@ func (b *CredentialManagerBinder) BindDependencies(ctx context.Context, routesDe
 			handlers = append(handlers, router.NewRouteDef(def.HttpMethod, def.Pattern, handlerManager.AssignCredentialToUser))
 		case fmt.Sprintf("%p", handlerManager.GetUserCredentials):
 			handlers = append(handlers, router.NewRouteDef(def.HttpMethod, def.Pattern, handlerManager.GetUserCredentials))
+		case fmt.Sprintf("%p", handlerManager.AuthorizeUserOnDoor):
+			handlers = append(handlers, router.NewRouteDef(def.HttpMethod, def.Pattern, handlerManager.AuthorizeUserOnDoor))
+		case fmt.Sprintf("%p", handlerManager.RevokeAuthorization):
+			handlers = append(handlers, router.NewRouteDef(def.HttpMethod, def.Pattern, handlerManager.RevokeAuthorization))
+		case fmt.Sprintf("%p", handlerManager.GetCredential):
+			handlers = append(handlers, router.NewRouteDef(def.HttpMethod, def.Pattern, handlerManager.GetCredential))
 		default:
 			panic(fmt.Sprintf("Unsupported route definition type: %p", def.Handler))
 		}

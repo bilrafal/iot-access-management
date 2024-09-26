@@ -67,3 +67,11 @@ func (tr *TraceError) Is(err *TraceError) bool {
 	}
 	return tr.Code == err.Code
 }
+
+func (tr *TraceError) Info() string {
+	msg := tr.Error()
+	if tr.UnderlyingErr != nil {
+		msg += fmt.Sprintf("\nInfo: [%s]", tr.UnderlyingErr.Error())
+	}
+	return msg
+}

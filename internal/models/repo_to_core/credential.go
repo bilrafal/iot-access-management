@@ -7,7 +7,7 @@ import (
 
 func RepoCredentialToCoreCredential(credential repo.Credential) core.Credential {
 	return core.Credential{
-		Id:         core.CredentialId(credential.Id),
+		Id:         core.CredentialId(credential.CredentialId),
 		Credential: core.CredentialVal(credential.Code),
 	}
 }

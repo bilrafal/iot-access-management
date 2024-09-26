@@ -6,8 +6,9 @@ import (
 )
 
 type Config struct {
-	Server ServerConfig `mapstructure:"server"`
-	DbDef  DbDef        `mapstructure:"db"`
+	Server       ServerConfig  `mapstructure:"server"`
+	DbDef        DbDef         `mapstructure:"db"`
+	ClientConfig *ClientConfig `mapstructure:"client"`
 }
 
 type ServerConfig struct {
@@ -18,6 +19,12 @@ type ServerConfig struct {
 
 type DbDef struct {
 	DbType string `mapstructure:"db-type"`
+}
+
+type ClientConfig struct {
+	ClientHost string `mapstructure:"host"`
+	ClientPort uint16 `mapstructure:"port"`
+	Timeout    int    `mapstructure:"timeout"`
 }
 
 // LoadConfig function loads app config from yaml fiel

@@ -1,10 +1,11 @@
 package core
 
 type UserCredential struct {
+	Id           string
 	UserId       UserId
 	CredentialId CredentialId
 }
 
-func NewUserCredential(userId UserId, credentialId CredentialId) *UserCredential {
-	return &UserCredential{UserId: userId, CredentialId: credentialId}
+func NewUserCredential(id string, userId UserId, credentialId CredentialId) *UserCredential {
+	return &UserCredential{Id: id, UserId: userId, CredentialId: credentialId}
 }

@@ -7,7 +7,8 @@ import (
 
 func RepoUserCredentialToCoreUserCredential(credential repo.UserCredential) core.UserCredential {
 	return core.UserCredential{
-		UserId:       core.UserId(credential.Id),
+		Id:           credential.Id,
+		UserId:       core.UserId(credential.UserId),
 		CredentialId: core.CredentialId(credential.CredentialId),
 	}
 }
