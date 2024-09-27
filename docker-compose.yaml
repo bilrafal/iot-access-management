@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+
+  credential-manager:
+    build:
+      context: .
+      dockerfile: dockerfiles/credential-manager/Dockerfile
+    image: svc-credential-manager:dev
+    ports:
+      - "4771:4771"
+    networks:
+      - iot-network
+
+  iot:
+    build:
+      context: .
+      dockerfile: dockerfiles/iot/Dockerfile
+    image: svc-iot-manager:dev
+    ports:
+      - "4772:4772"
+    networks:
+      - iot-network
+
+networks:
+  iot-network:
+    name: iot-network
+    driver: bridge

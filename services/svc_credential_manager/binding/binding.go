@@ -8,7 +8,6 @@ import (
 	"iot-access-management/internal/db"
 	"iot-access-management/internal/repo/repo_credential_simple"
 	"iot-access-management/internal/router"
-	"iot-access-management/internal/util"
 	"iot-access-management/services/svc_credential_manager/internal/api/handler"
 	"iot-access-management/services/svc_credential_manager/internal/core_manager/manager_implementation"
 	"path/filepath"
@@ -19,7 +18,7 @@ type CredentialManagerBinder struct {
 
 // GetConfig method loads the http server and app config from the yaml file
 func (b *CredentialManagerBinder) GetConfig() config.Config {
-	configPath := filepath.Join(util.GetEffectiveUserHomeFolder(), "services", "svc_credential_manager", "config")
+	configPath := filepath.Join("services", "svc_credential_manager", "config")
 	return config.LoadConfig(configPath)
 }
 

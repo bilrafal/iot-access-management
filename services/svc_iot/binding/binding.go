@@ -8,7 +8,6 @@ import (
 	"iot-access-management/internal/db"
 	"iot-access-management/internal/repo/repo_iot_simple"
 	"iot-access-management/internal/router"
-	"iot-access-management/internal/util"
 	"iot-access-management/services/svc_iot/internal/api/handler"
 	"iot-access-management/services/svc_iot/internal/core_manager/iot_implementation"
 	"path/filepath"
@@ -19,7 +18,7 @@ type IoTManagerBinder struct {
 
 // GetConfig method loads the http server and app config from the yaml file
 func (b *IoTManagerBinder) GetConfig() config.Config {
-	configPath := filepath.Join(util.GetEffectiveUserHomeFolder(), "services", "svc_iot", "config")
+	configPath := filepath.Join("services", "svc_iot", "config")
 	return config.LoadConfig(configPath)
 }
 
@@ -31,7 +30,7 @@ func (b *IoTManagerBinder) BindDependencies(ctx context.Context, routesDef []rou
 	//Fill all necessary elements: repo, core functionality manager and handler manager
 	repo := repo_iot_simple.NewRepoIotSimple(ctx, db.DbType(cfg.DbDef.DbType))
 	c := client.NewClient(cfg.ClientConfig.ClientHost, cfg.ClientConfig.ClientPort, cfg.ClientConfig.Timeout)
-	manager := iot_implementation.NewCredentialManagerSimple(repo,*c)
+	manager := iot_implementation.NewCredentialManagerSimple(repo, *c)
 	handlerManager := handler.NewIoTHandler(manager)
 
 	handlers := make([]router.RouteDef, 0)

@@ -30,8 +30,8 @@ apiCredentialManagerCommands(){
     authorize)
       local _doorId=$2
       local _credentialId=$3
-      # shellcheck disable=SC2086
-      curl -X POST -v -d "${_jsonPayload}" ${SVC_CREDENTIAL_MANAGER_URL}/authorize/"${_doorId}"/${_credentialId}
+
+      curl -X POST -v -d "${_jsonPayload}" ${SVC_CREDENTIAL_MANAGER_URL}/authorize/"${_doorId}"/"${_credentialId}"
     ;;
     revoke)
       local _doorId=$2
@@ -64,21 +64,22 @@ apiIoTCommands(){
   case "${_apiCommand}" in
     create-whitelist)
       local _doorId=$2
-      local _credentialId=$2
+      local _credentialId=$3
       local _jsonPayload="{\"door_id\":\"${_doorId}\",\"credential_id\":\"${_credentialId}\"}"
       curl -X POST -v -d "${_jsonPayload}" ${SVC_IOT_URL}/white-listuser
       ;;
     delete-whitelist)
       local _doorId=$2
-      local _credentialId=$2
+      local _credentialId=$3
       local _jsonPayload="{\"door_id\":\"${_doorId}\",\"credential_id\":\"${_credentialId}\"}"
       curl -X DELETE -v -d "${_jsonPayload}" ${SVC_IOT_URL}/white-listuser
       ;;
     request-access)
       local _doorId=$2
-      local _credentialCode=$2
+      local _credentialCode=$3
       local _jsonPayload="{\"door_id\":\"${_doorId}\",\"credential\":\"${_credentialCode}\"}"
-      curl -X DELETE -v -d "${_jsonPayload}" ${SVC_IOT_URL}/access/
+      echo "${_jsonPayload}"
+      curl -X POST -v -d "${_jsonPayload}" ${SVC_IOT_URL}/access
       ;;
 
     samples)
